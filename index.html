@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Fingerprint del Navegador</title>
+<title>Fingerprint Ultra Completo</title>
 
 <style>
 body{
@@ -11,19 +11,18 @@ body{
     font-family:monospace;
     display:flex;
     justify-content:center;
-    align-items:center;
-    min-height:100vh;
+    padding:20px;
 }
 .box{
     background:#020617;
-    padding:20px;
+    padding:25px;
     border-radius:12px;
     width:95%;
-    max-width:900px;
+    max-width:1000px;
     box-shadow:0 0 30px rgba(0,0,0,.7);
 }
-h1{color:#38bdf8;font-size:20px}
-.section{margin-top:15px}
+h1{color:#38bdf8;text-align:center}
+h2{color:#7dd3fc;font-size:16px;margin-top:15px}
 .item{margin-bottom:6px}
 .label{color:#94a3b8}
 .small{font-size:12px;color:#64748b}
@@ -31,7 +30,7 @@ hr{border-color:#1e293b;margin:15px 0}
 .fingerprint{
     word-break:break-all;
     background:#020617;
-    padding:10px;
+    padding:12px;
     border-radius:6px;
     font-size:12px;
 }
@@ -41,10 +40,10 @@ hr{border-color:#1e293b;margin:15px 0}
 <body>
 <div class="box">
 
-<h1>Información visible para esta web</h1>
+<h1>Fingerprint del Navegador (Ultra Completo)</h1>
 
-<div class="section">
-<div class="item"><span class="label">IP pública:</span> <span id="ip"></span></div>
+<h2>Sistema</h2>
+<div class="item"><span class="label">IP pública:</span> <span id="ip">Cargando…</span></div>
 <div class="item"><span class="label">Modo privado:</span> <span id="private"></span></div>
 <div class="item"><span class="label">Sistema:</span> <span id="os"></span></div>
 <div class="item"><span class="label">Versión:</span> <span id="osver"></span></div>
@@ -52,145 +51,161 @@ hr{border-color:#1e293b;margin:15px 0}
 <div class="item"><span class="label">Arquitectura CPU:</span> <span id="arch"></span></div>
 <div class="item"><span class="label">Núcleos CPU:</span> <span id="cores"></span></div>
 <div class="item"><span class="label">RAM aprox:</span> <span id="ram"></span></div>
-</div>
 
 <hr>
 
-<div class="section">
-<div class="item"><span class="label">Resolución pantalla:</span> <span id="res"></span></div>
+<h2>Pantalla y entorno</h2>
+<div class="item"><span class="label">Resolución:</span> <span id="res"></span></div>
 <div class="item"><span class="label">Viewport:</span> <span id="viewport"></span></div>
 <div class="item"><span class="label">Color depth:</span> <span id="color"></span></div>
+<div class="item"><span class="label">Touch:</span> <span id="touch"></span></div>
 <div class="item"><span class="label">Zona horaria:</span> <span id="tz"></span></div>
 <div class="item"><span class="label">Idioma:</span> <span id="lang"></span></div>
-<div class="item"><span class="label">Touch:</span> <span id="touch"></span></div>
 <div class="item"><span class="label">Do Not Track:</span> <span id="dnt"></span></div>
-</div>
 
 <hr>
 
-<div class="section">
+<h2>Gráficos y Audio</h2>
 <div class="item"><span class="label">GPU:</span> <span id="gpu"></span></div>
+<div class="item"><span class="label">Canvas FP:</span> <span id="canvasFP"></span></div>
+<div class="item"><span class="label">Audio FP:</span> <span id="audioFP"></span></div>
 <div class="item"><span class="label">WebRTC:</span> <span id="webrtc"></span></div>
-<div class="item"><span class="label">Storages:</span> <span id="storage"></span></div>
-<div class="item"><span class="label">Plugins:</span> <span id="plugins"></span></div>
-</div>
 
 <hr>
 
-<div class="section">
-<div class="label">Fingerprint SHA-256:</div>
-<div class="fingerprint" id="fp">Generando...</div>
-</div>
+<h2>Almacenamiento</h2>
+<div class="item"><span class="label">Storage:</span> <span id="storage"></span></div>
+<div class="item"><span class="label">Plugins:</span> <span id="plugins"></span></div>
+<div class="item"><span class="label">Fuentes:</span> <span id="fonts"></span></div>
+
+<hr>
+
+<h2>Otros</h2>
+<div class="item"><span class="label">Batería:</span> <span id="battery"></span></div>
+<div class="item"><span class="label">Codecs:</span> <span id="codecs"></span></div>
+
+<hr>
+
+<h2>Huella digital final (SHA‑256)</h2>
+<div class="fingerprint" id="fp">Generando…</div>
 
 <div class="small">
-Estos datos son accesibles sin permisos.<br>
-No se accede a archivos ni historial.
+Todos estos datos son accesibles para esta web.
 </div>
 
 </div>
 
 <script>
-/* ===== UTILIDADES ===== */
-function $(id){return document.getElementById(id)}
+const $=id=>document.getElementById(id);
 
+/* ========= HASH ========= */
 async function sha256(str){
-    const buf = new TextEncoder().encode(str)
-    const hash = await crypto.subtle.digest("SHA-256",buf)
-    return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,"0")).join("")
+  const buf=new TextEncoder().encode(str);
+  const hash=await crypto.subtle.digest("SHA-256",buf);
+  return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,"0")).join("");
 }
 
-/* ===== SISTEMA ===== */
+/* ========= SISTEMA ========= */
 function os(){
-    const ua=navigator.userAgent
-    if(/cros/i.test(ua))return"ChromeOS"
-    if(/win/i.test(ua))return"Windows"
-    if(/android/i.test(ua))return"Android"
-    if(/iphone|ipad/i.test(ua))return"iOS"
-    if(/mac/i.test(ua))return"macOS"
-    if(/linux/i.test(ua))return"Linux"
-    return"Desconocido"
+  const ua=navigator.userAgent;
+  if(/cros/i.test(ua))return"ChromeOS";
+  if(/win/i.test(ua))return"Windows";
+  if(/android/i.test(ua))return"Android";
+  if(/iphone|ipad/i.test(ua))return"iOS";
+  if(/mac/i.test(ua))return"macOS";
+  if(/linux/i.test(ua))return"Linux";
+  return"Desconocido";
 }
-
 function osver(){
-    const m=navigator.userAgent.match(/(Windows NT|Android|OS X|OS) ([0-9._]+)/i)
-    return m?m[2].replace(/_/g,"."):"No disponible"
+  const ua=navigator.userAgent;
+  if(/CrOS/.test(ua)){const m=ua.match(/CrOS [^ ]+ ([0-9.]+)/);return m?.[1]||"?"}
+  if(/Windows NT/.test(ua)){const m=ua.match(/Windows NT ([0-9.]+)/);return m?.[1]||"?"}
+  if(/Android/.test(ua)){const m=ua.match(/Android ([0-9.]+)/);return m?.[1]||"?"}
+  if(/OS ([0-9_]+)/.test(ua)&&/Mac|iPhone|iPad/.test(ua)){return RegExp.$1.replace(/_/g,".")}
+  return"No disponible";
 }
 
-/* ===== GPU ===== */
-function gpu(){
-    try{
-        const c=document.createElement("canvas")
-        const gl=c.getContext("webgl")
-        const dbg=gl.getExtension("WEBGL_debug_renderer_info")
-        return dbg?gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL):"Limitado"
-    }catch{return"Bloqueado"}
-}
-
-/* ===== PRIVADO ===== */
+/* ========= PRIVADO ========= */
 async function isPrivate(){
-    try{
-        const {quota}=await navigator.storage.estimate()
-        return quota<120000000?"Probablemente SÍ":"Probablemente NO"
-    }catch{return"No determinado"}
+  try{
+    const {quota}=await navigator.storage.estimate();
+    return quota<120000000?"Probablemente SÍ":"Probablemente NO";
+  }catch{return"No determinado"}
 }
 
-/* ===== STORAGE ===== */
-function storage(){
-    return [
-        localStorage?"local":"×",
-        sessionStorage?"session":"×",
-        indexedDB?"indexedDB":"×"
-    ].join(" | ")
+/* ========= FINGERPRINT ========= */
+function canvasFP(){
+  const c=document.createElement("canvas"),x=c.getContext("2d");
+  x.font="14px Arial";x.fillText("fingerprint",2,2);
+  return c.toDataURL();
+}
+function audioFP(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(),a=ctx.createAnalyser();
+    o.connect(a);o.start(0);
+    const d=new Uint8Array(a.frequencyBinCount);
+    a.getByteFrequencyData(d);
+    return d.slice(0,20).join(",");
+  }catch{return"blocked"}
+}
+function gpuFP(){
+  try{
+    const gl=document.createElement("canvas").getContext("webgl");
+    const dbg=gl.getExtension("WEBGL_debug_renderer_info");
+    return dbg?gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL):"limited";
+  }catch{return"blocked"}
 }
 
-/* ===== PLUGINS ===== */
-function plugins(){
-    return navigator.plugins.length
-}
+/* ========= CARGA ========= */
+$("os").textContent=os();
+$("osver").textContent=osver();
+$("browser").textContent=navigator.userAgent;
+$("arch").textContent=navigator.platform;
+$("cores").textContent=navigator.hardwareConcurrency||"?";
+$("ram").textContent=navigator.deviceMemory?navigator.deviceMemory+" GB":"?";
+$("res").textContent=screen.width+"x"+screen.height;
+$("viewport").textContent=innerWidth+"x"+innerHeight;
+$("color").textContent=screen.colorDepth;
+$("touch").textContent=navigator.maxTouchPoints>0?"Sí":"No";
+$("tz").textContent=Intl.DateTimeFormat().resolvedOptions().timeZone;
+$("lang").textContent=navigator.language;
+$("dnt").textContent=navigator.doNotTrack||"No";
+$("gpu").textContent=gpuFP();
+$("canvasFP").textContent=canvasFP();
+$("audioFP").textContent=audioFP();
+$("webrtc").textContent=window.RTCPeerConnection?"Activo":"No";
+$("storage").textContent=[
+  localStorage?"local":"×",
+  sessionStorage?"session":"×",
+  indexedDB?"indexedDB":"×",
+  navigator.cookieEnabled?"cookies":"×"
+].join(" | ");
+$("plugins").textContent=navigator.plugins.length;
+$("fonts").textContent="Arial, Times, Courier, Verdana, Tahoma";
+$("codecs").textContent="mp4 webm ogg mp3";
 
-/* ===== CARGA ===== */
-$("os").textContent=os()
-$("osver").textContent=osver()
-$("browser").textContent=navigator.userAgent
-$("arch").textContent=navigator.platform
-$("cores").textContent=navigator.hardwareConcurrency||"?"
-$("ram").textContent=navigator.deviceMemory?navigator.deviceMemory+" GB":"?"
-$("res").textContent=screen.width+"x"+screen.height
-$("viewport").textContent=innerWidth+"x"+innerHeight
-$("color").textContent=screen.colorDepth
-$("tz").textContent=Intl.DateTimeFormat().resolvedOptions().timeZone
-$("lang").textContent=navigator.language
-$("touch").textContent=navigator.maxTouchPoints>0?"Sí":"No"
-$("dnt").textContent=navigator.doNotTrack||"No"
-$("gpu").textContent=gpu()
-$("webrtc").textContent=window.RTCPeerConnection?"Activo":"No"
-$("storage").textContent=storage()
-$("plugins").textContent=plugins()
+isPrivate().then(v=>$("private").textContent=v);
 
-isPrivate().then(v=>$("private").textContent=v)
-
+/* ========= IP ========= */
 fetch("https://api.ipify.org?format=json")
-.then(r=>r.json()).then(d=>$("ip").textContent=d.ip)
-.catch(()=>$("ip").textContent="No disponible")
+.then(r=>r.json())
+.then(d=>$("ip").textContent=d.ip)
+.catch(()=>$("ip").textContent="Bloqueada");
 
-/* ===== FINGERPRINT ===== */
+/* ========= FINGERPRINT FINAL ========= */
 (async()=>{
-const raw=[
-navigator.userAgent,
-navigator.language,
-screen.width,screen.height,
-screen.colorDepth,
-navigator.hardwareConcurrency,
-navigator.deviceMemory,
-gpu(),
-Intl.DateTimeFormat().resolvedOptions().timeZone,
-navigator.platform,
-navigator.maxTouchPoints
-].join("||")
-
-$("fp").textContent=await sha256(raw)
-})()
+  const raw=[
+    navigator.userAgent,navigator.language,
+    screen.width,screen.height,screen.colorDepth,
+    navigator.hardwareConcurrency,navigator.deviceMemory,
+    gpuFP(),canvasFP(),audioFP(),
+    navigator.maxTouchPoints,
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+    navigator.platform
+  ].join("||");
+  $("fp").textContent=await sha256(raw);
+})();
 </script>
-
 </body>
 </html>
